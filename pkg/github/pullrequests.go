@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/go-viper/mapstructure/v2"
-	"github.com/google/go-github/v77/github"
+	"github.com/google/go-github/v79/github"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/shurcooL/githubv4"
@@ -1516,6 +1516,14 @@ func AddCommentToPendingReview(getGQLClient GetGQLClientFn, t translations.Trans
 				nil,
 			); err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
+			}
+
+			if addPullRequestReviewThreadMutation.AddPullRequestReviewThread.Thread.ID == nil {
+				return mcp.NewToolResultError(`Failed to add comment to pending review. Possible reasons:
+	- The line number doesn't exist in the pull request diff
+	- The file path is incorrect
+	- The side (LEFT/RIGHT) is invalid for the specified line
+`), nil
 			}
 
 			// Return nothing interesting, just indicate success for the time being.
